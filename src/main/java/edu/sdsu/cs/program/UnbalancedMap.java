@@ -1,18 +1,114 @@
 package edu.sdsu.cs.program;
 
+import java.util.LinkedList;
+
 // class to be implemented with low level java code
 public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
+    private static final int DEFAULT_TEST_SIZE = 100000;
+
+    Node<K, V> root;
+    int count = 0;
+
+    private class Node<K, V> {
+        K key;
+        V value;
+        Node<K, V> left, right;
+
+        public Node(K key, V value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        boolean contains(K k) {
+            if (((Comparable<K>) this.key).compareTo(k) == 0)
+                return true;
+            else if (left != null && ((Comparable<K>) this.key).compareTo(k) > 0)
+                return left.contains(k);
+            else if (right != null)
+                return right.contains(k);
+            return false;
+        }
+
+        boolean add(K k, V v) {
+            if (((Comparable<K>) this.key).compareTo(k) > 0) {
+                if (left == null) {
+                    left = new Node<K, V>(k, v);
+                    return true;
+                }
+                return left.add(k, v);
+            } else if (((Comparable<K>) this.key).compareTo(k) < 0) {
+                if (right == null) {
+                    right = new Node<K, V>(k, v);
+                    return true;
+                }
+                return right.add(k, v);
+            }
+            return false;
+        }
+
+        V getValue(K k) {
+            if (((Comparable<K>) this.key).compareTo(k) == 0) {
+                return this.value;
+            } else if (((Comparable<K>) this.key).compareTo(k) > 0) {
+                if (left == null)
+                    return null;
+                return left.getValue(k);
+            } else {
+                if (right == null)
+                    return null;
+                return right.getValue(k);
+            }
+        }
+
+        K getKey(V v) {
+            if (this.value.equals(v))
+                return this.key;
+
+            K res = null;
+            if (left != null)
+                res = left.getKey(v);
+
+            if (res != null)
+                return res;
+
+            if (right != null)
+                res = right.getKey(v);
+
+            return res;
+        }
+    }
+
+    public UnbalancedMap() {
+        super();
+        root = null;
+    }
+
+    public UnbalancedMap(IMap<K, V> map) {
+        super();
+        if (map != null) {
+            Iterable<K> keys = map.keyset();
+            for (K k : keys)
+                this.add(k, map.getValue(k));
+        }
+    }
 
     @Override
     public boolean contains(K key) {
-        // TODO Auto-generated method stub
-        return false;
+        return root == null ? false : root.contains(key);
     }
 
     @Override
     public boolean add(K key, V value) {
-        // TODO Auto-generated method stub
-        return false;
+
+        if (root == null) {
+            root = new Node<K, V>(key, value);
+            count++;
+            return true;
+        }
+        boolean result = root.add(key, value);
+        if (result)
+            count++;
+        return result;
     }
 
     @Override
@@ -23,50 +119,74 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
 
     @Override
     public V getValue(K key) {
-        // TODO Auto-generated method stub
-        return null;
+        return root == null ? null : root.getValue(key);
     }
 
     @Override
     public K getKey(V value) {
-        // TODO Auto-generated method stub
-        return null;
+        return root == null ? null : root.getKey(value);
     }
 
     @Override
     public Iterable<K> getKeys(V value) {
-        // TODO Auto-generated method stub
-        return null;
+        LinkedList<K> list = new LinkedList<>();
+        getKeys(root, list, value);
+        return list;
     }
 
     @Override
     public int size() {
-        // TODO Auto-generated method stub
-        return 0;
+        return this.count;
     }
 
     @Override
     public boolean isEmpty() {
-        // TODO Auto-generated method stub
-        return false;
+        return this.size() == 0;
     }
 
     @Override
     public void clear() {
-        // TODO Auto-generated method stub
-
+        this.root = null;
+        this.count = 0;
     }
 
     @Override
     public Iterable<K> keyset() {
-        // TODO Auto-generated method stub
-        return null;
+        LinkedList<K> list = new LinkedList<>();
+        traverseKeys(root, list);
+        return list;
+    }
+
+    private void getKeys(Node<K, V> node, LinkedList<K> list, V value) {
+        if (node != null) {
+            getKeys(node.left, list, value);
+            if (node.value.equals(value))
+                list.add(node.key);
+            getKeys(node.right, list, value);
+        }
+    }
+
+    private void traverseValues(Node<K, V> node, LinkedList<V> list) {
+        if (node != null) {
+            traverseValues(node.left, list);
+            list.add(node.value);
+            traverseValues(node.right, list);
+        }
+    }
+
+    private void traverseKeys(Node<K, V> node, LinkedList<K> list) {
+        if (node != null) {
+            traverseKeys(node.left, list);
+            list.add(node.key);
+            traverseKeys(node.right, list);
+        }
     }
 
     @Override
     public Iterable<V> values() {
-        // TODO Auto-generated method stub
-        return null;
+        LinkedList<V> list = new LinkedList<>();
+        traverseValues(root, list);
+        return list;
     }
 
 }

@@ -187,8 +187,7 @@ public class UnbalancedMapTest {
     public void mapConstructor_initCorrectly() {
         IMap<String, Long> original = addInOrderSequence(new UnbalancedMap<String, Long>(), DEFAULT_TEST_SIZE, 0);
 
-        // TODO: Uncomment this after implementing UnbalancedMap
-        // sut = new UnbalancedMap<>(original);
+        sut = new UnbalancedMap<>(original);
 
         assertEquals(DEFAULT_TEST_SIZE, sut.size());
     }
