@@ -1,8 +1,7 @@
 package edu.sdsu.cs.program;
 
 /**
- * Hello world!
- *
+ * Students: Zurab Kavtaradze, Dimitri Dondoladze
  */
 public class App 
 {
