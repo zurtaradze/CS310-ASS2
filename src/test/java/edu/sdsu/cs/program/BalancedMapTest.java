@@ -187,8 +187,7 @@ public class BalancedMapTest {
     public void mapConstructor_initCorrectly() {
         IMap<String, Long> original = addInOrderSequence(new BalancedMap<String, Long>(), DEFAULT_TEST_SIZE, 0);
 
-        // TODO: Uncomment this after implementing BalancedMap
-        // sut = new BalancedMap<>(original);
+        sut = new BalancedMap<>(original);
 
         assertEquals(DEFAULT_TEST_SIZE, sut.size());
     }
