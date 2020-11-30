@@ -77,37 +77,6 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
                 return right.contains(k);
             return false;
         }
-
-        V getValue(K k) {
-            if (((Comparable<K>) this.key).compareTo(k) == 0) {
-                return this.value;
-            } else if (((Comparable<K>) this.key).compareTo(k) > 0) {
-                if (left == null)
-                    return null;
-                return left.getValue(k);
-            } else {
-                if (right == null)
-                    return null;
-                return right.getValue(k);
-            }
-        }
-
-        K getKey(V v) {
-            if (this.value.equals(v))
-                return this.key;
-
-            K res = null;
-            if (left != null)
-                res = left.getKey(v);
-
-            if (res != null)
-                return res;
-
-            if (right != null)
-                res = right.getKey(v);
-
-            return res;
-        }
     }
 
     public UnbalancedMap() {
@@ -124,9 +93,47 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
         }
     }
 
+    private Node<K,V> getByKey(K key) {
+        Node<K,V> p = root;
+        while (p != null) {
+            int cmp = p.key.compareTo(key);
+            if (cmp < 0)
+                p = p.right;
+            else if (cmp > 0)
+                p = p.left;
+            else
+                return p;
+        }
+        return null;
+    }
+
+    private Node<K,V> getByValue (V value) {
+        Node<K,V> node = root;
+
+        Stack<Node> stack = new Stack<>();
+        stack.push(node);
+
+        while (!stack.empty()) {
+            node = stack.pop();
+
+            if (node.value.equals(value)) {
+                return node;
+            }
+
+            if (node.left != null)
+                stack.push(node.left);
+            if (node.right != null)
+                stack.push(node.right);
+        }
+        return null;
+    }
+
     @Override
     public boolean contains(K key) {
-        return root == null ? false : root.contains(key);
+        if (root == null)
+            return false;
+
+        return getByKey(key) != null;
     }
 
     @Override
@@ -259,18 +266,30 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
 
     @Override
     public V getValue(K key) {
-        return root == null ? null : root.getValue(key);
+        if (root == null)
+            return null;
+
+        Node<K,V> foundNode = getByKey(key);
+        if (foundNode == null)
+            return null;
+        return foundNode.value;
     }
 
     @Override
     public K getKey(V value) {
-        return root == null ? null : root.getKey(value);
+        if (root == null)
+            return null;
+
+        Node<K,V> foundNode = getByValue(value);
+        if (foundNode == null)
+            return null;
+        return foundNode.key;
     }
 
     @Override
     public Iterable<K> getKeys(V value) {
         LinkedList<K> list = new LinkedList<>();
-        getKeys(root, list, value);
+        traverseKeys(root, list, true, value);
         return list;
     }
 
@@ -293,20 +312,11 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
     @Override
     public Iterable<K> keyset() {
         LinkedList<K> list = new LinkedList<>();
-        traverseKeys(root, list);
+        traverseKeys(root, list, false, null);
         return list;
     }
 
-    private void getKeys(Node<K, V> node, LinkedList<K> list, V value) {
-        if (node != null) {
-            getKeys(node.left, list, value);
-            if (node.value.equals(value))
-                list.add(node.key);
-            getKeys(node.right, list, value);
-        }
-    }
-
-    private void traverseValues(Node<K, V> node, LinkedList<V> list) {
+    private void traverseValues(Node<K, V> node, LinkedList<V> list, boolean filterWithkey, K key) {
         if (node == null) {
             return;
         }
@@ -315,7 +325,15 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
 
         while (!stack.empty()) {
             node = stack.pop();
-            list.add(node.value);
+
+            if (filterWithkey) {
+                if (node.key.equals(key)) {
+                    list.add(node.value);
+                }
+            } else {
+                list.add(node.value);
+            }
+
             if (node.left != null)
                 stack.push(node.left);
             if (node.right != null)
@@ -323,7 +341,7 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
         }
     }
 
-    private void traverseKeys(Node<K, V> node, LinkedList<K> list) {
+    private void traverseKeys(Node<K, V> node, LinkedList<K> list, boolean filterWithValue, V value) {
         if (node == null) {
             return;
         }
@@ -332,7 +350,14 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
 
         while (!stack.empty()) {
             node = stack.pop();
-            list.add(node.key);
+
+            if (filterWithValue) {
+                if (node.value.equals(value))
+                    list.add(node.key);
+            } else {
+                list.add(node.key);
+            }
+
             if (node.left != null)
                 stack.push(node.left);
             if (node.right != null)
@@ -360,7 +385,7 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
     @Override
     public Iterable<V> values() {
         LinkedList<V> list = new LinkedList<>();
-        traverseValues(root, list);
+        traverseValues(root, list, false, null);
         return list;
     }
 }
