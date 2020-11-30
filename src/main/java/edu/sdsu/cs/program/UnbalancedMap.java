@@ -1,6 +1,7 @@
 package edu.sdsu.cs.program;
 
 import java.util.LinkedList;
+import java.util.Stack;
 
 // class to be implemented with low level java code
 public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
@@ -110,9 +111,60 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
         return false;
     }
 
+//    @Override
+//    public V delete(K key) {
+//        Node<K,V> current = root;
+//        Node<K,V> previous = null;
+//
+//        while (current != null && current.key.compareTo(key) != 0) {
+//            previous = current;
+//
+//            if (current.key.compareTo(key) > 0)
+//                current = current.left;
+//            else
+//                current = current.right;
+//        }
+//
+//        // key not found
+//        if (current == null)
+//            return null;
+//
+//        if (current.right == null || current.left == null) {
+//            Node<K,V> newNode;
+//
+//            if (current.right == null)
+//                newNode = current.left;
+//            else
+//                newNode = current.right;
+//
+//            if (previous == null)
+//                return newNode.value;
+//
+//            if (current == previous.right)
+//                previous.right = newNode;
+//            else
+//                previous.left = newNode;
+//        } else {
+//            Node<K,V> prev = null;
+//            Node<K,V> temp = current.right;
+//
+//            while (temp.left != null) {
+//                prev = temp;
+//                temp = temp.left;
+//            }
+//
+//            if (prev != null)
+//                prev.left = temp.right;
+//            else
+//                current.right = temp.right;
+//        }
+//        count--;
+//        return current.value;
+//    }
+
     @Override
     public V delete(K key) {
-        // TODO Auto-generated method stub
+        // TODO: Implement
         return null;
     }
 
@@ -166,18 +218,36 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
     }
 
     private void traverseValues(Node<K, V> node, LinkedList<V> list) {
-        if (node != null) {
-            traverseValues(node.left, list);
-            list.add(node.value);
-            traverseValues(node.right, list);
+        if (node == null) {
+            return;
+        }
+        Stack<Node> stack = new Stack<>();
+        stack.push(node);
+
+        while (!stack.empty()) {
+            node = stack.pop();
+            list.add(root.value);
+            if (node.left != null)
+                stack.push(node.left);
+            if (node.right != null)
+                stack.push(node.right);
         }
     }
 
     private void traverseKeys(Node<K, V> node, LinkedList<K> list) {
-        if (node != null) {
-            traverseKeys(node.left, list);
-            list.add(node.key);
-            traverseKeys(node.right, list);
+        if (node == null) {
+            return;
+        }
+        Stack<Node> stack = new Stack<>();
+        stack.push(node);
+
+        while (!stack.empty()) {
+            node = stack.pop();
+            list.add(root.key);
+            if (node.left != null)
+                stack.push(node.left);
+            if (node.right != null)
+                stack.push(node.right);
         }
     }
 
@@ -187,5 +257,4 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
         traverseValues(root, list);
         return list;
     }
-
 }
