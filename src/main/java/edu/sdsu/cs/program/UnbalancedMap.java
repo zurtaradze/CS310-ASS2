@@ -1,6 +1,7 @@
 package edu.sdsu.cs.program;
 
 import java.util.LinkedList;
+import java.util.Stack;
 
 // class to be implemented with low level java code
 public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
@@ -109,10 +110,10 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
         }
         return false;
     }
-
+    
     @Override
     public V delete(K key) {
-        // TODO Auto-generated method stub
+        // TODO: Implement
         return null;
     }
 
@@ -166,18 +167,36 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
     }
 
     private void traverseValues(Node<K, V> node, LinkedList<V> list) {
-        if (node != null) {
-            traverseValues(node.left, list);
-            list.add(node.value);
-            traverseValues(node.right, list);
+        if (node == null) {
+            return;
+        }
+        Stack<Node> stack = new Stack<>();
+        stack.push(node);
+
+        while (!stack.empty()) {
+            node = stack.pop();
+            list.add(root.value);
+            if (node.left != null)
+                stack.push(node.left);
+            if (node.right != null)
+                stack.push(node.right);
         }
     }
 
     private void traverseKeys(Node<K, V> node, LinkedList<K> list) {
-        if (node != null) {
-            traverseKeys(node.left, list);
-            list.add(node.key);
-            traverseKeys(node.right, list);
+        if (node == null) {
+            return;
+        }
+        Stack<Node> stack = new Stack<>();
+        stack.push(node);
+
+        while (!stack.empty()) {
+            node = stack.pop();
+            list.add(root.key);
+            if (node.left != null)
+                stack.push(node.left);
+            if (node.right != null)
+                stack.push(node.right);
         }
     }
 
@@ -187,5 +206,4 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
         traverseValues(root, list);
         return list;
     }
-
 }
