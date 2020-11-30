@@ -110,58 +110,7 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
         }
         return false;
     }
-
-//    @Override
-//    public V delete(K key) {
-//        Node<K,V> current = root;
-//        Node<K,V> previous = null;
-//
-//        while (current != null && current.key.compareTo(key) != 0) {
-//            previous = current;
-//
-//            if (current.key.compareTo(key) > 0)
-//                current = current.left;
-//            else
-//                current = current.right;
-//        }
-//
-//        // key not found
-//        if (current == null)
-//            return null;
-//
-//        if (current.right == null || current.left == null) {
-//            Node<K,V> newNode;
-//
-//            if (current.right == null)
-//                newNode = current.left;
-//            else
-//                newNode = current.right;
-//
-//            if (previous == null)
-//                return newNode.value;
-//
-//            if (current == previous.right)
-//                previous.right = newNode;
-//            else
-//                previous.left = newNode;
-//        } else {
-//            Node<K,V> prev = null;
-//            Node<K,V> temp = current.right;
-//
-//            while (temp.left != null) {
-//                prev = temp;
-//                temp = temp.left;
-//            }
-//
-//            if (prev != null)
-//                prev.left = temp.right;
-//            else
-//                current.right = temp.right;
-//        }
-//        count--;
-//        return current.value;
-//    }
-
+    
     @Override
     public V delete(K key) {
         // TODO: Implement
