@@ -29,23 +29,6 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
             return false;
         }
 
-        boolean add(K k, V v) {
-            if (((Comparable<K>) this.key).compareTo(k) > 0) {
-                if (left == null) {
-                    left = new Node<K, V>(k, v);
-                    return true;
-                }
-                return left.add(k, v);
-            } else if (((Comparable<K>) this.key).compareTo(k) < 0) {
-                if (right == null) {
-                    right = new Node<K, V>(k, v);
-                    return true;
-                }
-                return right.add(k, v);
-            }
-            return false;
-        }
-
         V getValue(K k) {
             if (((Comparable<K>) this.key).compareTo(k) == 0) {
                 return this.value;
@@ -105,10 +88,26 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
             count++;
             return true;
         }
-        boolean result = root.add(key, value);
-        if (result)
-            count++;
-        return result;
+
+        Node<K, V> parent = root;
+        while (((Comparable<K>) key).compareTo(parent.key) != 0) {
+            if (((Comparable<K>) key).compareTo(parent.key) > 0) {
+                if (parent.right == null) {
+                    parent.right = new Node<K, V>(key, value);
+                    count++;
+                    return true;
+                }
+                parent = parent.right;
+            } else {
+                if (parent.left == null) {
+                    parent.left = new Node<K, V>(key, value);
+                    count++;
+                    return true;
+                }
+                parent = parent.left;
+            }
+        }
+        return false;
     }
 
     @Override
