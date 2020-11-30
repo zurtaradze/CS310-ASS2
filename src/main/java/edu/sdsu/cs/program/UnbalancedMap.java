@@ -320,24 +320,29 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
         if (node == null) {
             return;
         }
+
         Stack<Node> stack = new Stack<>();
+        Node<K,V> current = node;
+
         stack.push(node);
 
-        while (!stack.empty()) {
-            node = stack.pop();
+        while (current != null || !stack.empty()) {
+            while (current != null) {
+                stack.push(current);
+                current = current.left;
+            }
+
+            current = stack.pop();
 
             if (filterWithkey) {
                 if (node.key.compareTo(key) == 0) {
                     list.add(node.value);
                 }
             } else {
-                list.add(node.value);
+                list.add(current.value);
             }
 
-            if (node.left != null)
-                stack.push(node.left);
-            if (node.right != null)
-                stack.push(node.right);
+            current = current.right;
         }
     }
 
@@ -345,23 +350,26 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
         if (node == null) {
             return;
         }
+
         Stack<Node> stack = new Stack<>();
-        stack.push(node);
+        Node<K,V> current = node;
 
-        while (!stack.empty()) {
-            node = stack.pop();
-
-            if (filterWithValue) {
-                if (node.value.equals(value))
-                    list.add(node.key);
-            } else {
-                list.add(node.key);
+        while (current!= null || !stack.empty()) {
+            while (current != null) {
+                stack.push(current);
+                current = current.left;
             }
 
-            if (node.left != null)
-                stack.push(node.left);
-            if (node.right != null)
-                stack.push(node.right);
+            current = stack.pop();
+
+            if (filterWithValue) {
+                if (current.value.equals(value))
+                    list.add(current.key);
+            } else {
+                list.add(current.key);
+            }
+
+            current = current.right;
         }
     }
 
