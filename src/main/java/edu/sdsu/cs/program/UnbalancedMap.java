@@ -93,8 +93,8 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
         }
     }
 
-    private Node<K,V> getByKey(K key) {
-        Node<K,V> p = root;
+    private Node<K, V> getByKey(K key) {
+        Node<K, V> p = root;
         while (p != null) {
             int cmp = p.key.compareTo(key);
             if (cmp < 0)
@@ -107,8 +107,8 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
         return null;
     }
 
-    private Node<K,V> getByValue (V value) {
-        Node<K,V> node = root;
+    private Node<K, V> getByValue(V value) {
+        Node<K, V> node = root;
 
         Stack<Node> stack = new Stack<>();
         stack.push(node);
@@ -269,7 +269,7 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
         if (root == null)
             return null;
 
-        Node<K,V> foundNode = getByKey(key);
+        Node<K, V> foundNode = getByKey(key);
         if (foundNode == null)
             return null;
         return foundNode.value;
@@ -280,7 +280,7 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
         if (root == null)
             return null;
 
-        Node<K,V> foundNode = getByValue(value);
+        Node<K, V> foundNode = getByValue(value);
         if (foundNode == null)
             return null;
         return foundNode.key;
@@ -327,7 +327,7 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
             node = stack.pop();
 
             if (filterWithkey) {
-                if (node.key.equals(key)) {
+                if (node.key.compareTo(key) == 0) {
                     list.add(node.value);
                 }
             } else {

@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 
 public class UnbalancedMapTest {
 
-    private static final int DEFAULT_TEST_SIZE = 100000;
+    private static final int DEFAULT_TEST_SIZE = 10000;
     private static final int DEFAULT_START_KEY = 0;
     private static final int DEFAULT_CHECK = -1337;
     private static final int DEFAULT_IGNORE = -310;
