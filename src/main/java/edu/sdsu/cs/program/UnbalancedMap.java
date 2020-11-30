@@ -1,6 +1,5 @@
 package edu.sdsu.cs.program;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Stack;
 
@@ -36,37 +35,36 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
             return parent;
         }
 
-        public Node<K, V> getChildWithKey(K key) {
-            if (this.hasLeftChild() && this.left.key.equals(key)) {
-                return this.left;
-            } else if (this.hasRightChild() && this.right.key.equals(key)) {
-                return this.right;
-            } else {
+        public Node<K, V> belowByKey(K key) {
+            if (isLeftChilded() && left.key.compareTo(key) == 0)
+                return left;
+            else if (isRightChilded() && right.key.compareTo(key) == 0)
+                return right;
+            else
                 return null;
-            }
         }
 
         private Node<K, V> smallest() {
             Node<K, V> smallest = this;
-            while (smallest.hasLeftChild()) {
+            while (smallest.isLeftChilded()) {
                 smallest = smallest.left;
             }
             return smallest;
         }
 
-        public Node<K, V> inOrderPredecessor() {
-            Node<K, V> predecessor = this;
-            if (predecessor.hasRightChild()) {
-                return predecessor.right.smallest();
+        public Node<K, V> pred_in_order() {
+            Node<K, V> inorder = this;
+            if (inorder.isRightChilded()) {
+                return inorder.right.smallest();
             }
             return null;
         }
 
-        public boolean hasLeftChild() {
+        public boolean isLeftChilded() {
             return left != null;
         }
 
-        public boolean hasRightChild() {
+        public boolean isRightChilded() {
             return right != null;
         }
 
@@ -163,104 +161,100 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
 
     @Override
     public V delete(K key) {
-        if (!this.contains(key)) {
+        if (!contains(key))
             return null;
-        }
 
-        if (isOnlyRoot(key)) {
-            V value = root.value;
+        if (singleRoot(key)) {
+            V v = root.value;
             root = null;
             count--;
-            return value;
+            return v;
         }
 
-        if (isRoot(key)) {
-            V value = root.value;
-            replaceRoot();
+        if (rootNode(key)) {
+            V v = root.value;
+            changeRoot();
             count--;
-            return value;
+            return v;
 
         }
 
-        Node<K, V> parent = getParentNodeByKey(key);
-        Node<K, V> active = parent.getChildWithKey(key);
+        Node<K, V> upper = upperByKey(key);
+        Node<K, V> current = upper.belowByKey(key);
 
-        if (!active.hasLeftChild() && !active.hasRightChild()) {
-            if (parent.left == active) {
-                parent.left = null;
+        if (!current.isLeftChilded() && !current.isRightChilded()) {
+            if (upper.left == current) {
+                upper.left = null;
             } else {
-                parent.right = null;
+                upper.right = null;
             }
         }
 
-        if (active.hasLeftChild() && !active.hasRightChild()) {
-            if (parent.left == active) {
-                parent.left = active.left;
-            } else {
-                parent.right = active.left;
-            }
-        } else if (!active.hasLeftChild() && active.hasRightChild()) {
-            if (parent.left == active) {
-                parent.left = active.right;
-            } else {
-                parent.right = active.right;
-            }
-        } else if (active.hasLeftChild() && active.hasRightChild()) {
-            Node<K, V> replacement = active.inOrderPredecessor();
+        if (current.isLeftChilded() && !current.isRightChilded()) {
+            if (upper.left == current)
+                upper.left = current.left;
+            else
+                upper.right = current.left;
+        } else if (!current.isLeftChilded() && current.isRightChilded()) {
+            if (upper.left == current)
+                upper.left = current.right;
+            else
+                upper.right = current.right;
+        } else if (current.isLeftChilded() && current.isRightChilded()) {
+            Node<K, V> nodetochangewith = current.pred_in_order();
 
-            if (parent.left == active) {
-                parent.left = replacement;
-            } else {
-                parent.right = replacement;
-            }
-            replacement.left = active.left;
-            replacement.right = active.right;
+            if (upper.left == current)
+                upper.left = nodetochangewith;
+            else
+                upper.right = nodetochangewith;
 
+            nodetochangewith.left = current.left;
+            nodetochangewith.right = current.right;
         }
 
         count--;
-        active.left = null;
-        active.right = null;
-        return active.value;
+        current.left = null;
+        current.right = null;
+        return current.value;
     }
 
-    private Node<K, V> getParentNodeByKey(K key) {
-        Node<K, V> active = root;
-        Node<K, V> parent = root;
-        int direction = key.compareTo(active.key);
+    private Node<K, V> upperByKey(K key) {
+        Node<K, V> current = root;
+        Node<K, V> above = root;
+        int comparison = ((K) key).compareTo(current.key);
 
-        while (direction != 0) {
-            parent = active;
-            if (direction < 0) {
-                active = active.left;
-            } else if (direction > 0) {
-                active = active.right;
+        while (comparison != 0) {
+            above = current;
+            if (comparison < 0) {
+                current = current.left;
+            } else if (comparison > 0) {
+                current = current.right;
             }
-            direction = key.compareTo(active.key);
+            comparison = ((K) key).compareTo(current.key);
         }
-        return parent;
+        return above;
     }
 
-    private boolean isRoot(K key) {
+    private boolean rootNode(K key) {
         return (key.compareTo(root.key) == 0);
     }
 
-    private boolean isOnlyRoot(K key) {
-        return (isRoot(key) && size() == 1);
+    private boolean singleRoot(K key) {
+        return (rootNode(key) && count == 1);
     }
 
-    private void replaceRoot() {
+    private void changeRoot() {
 
-        Node<K, V> replacement = root.inOrderPredecessor();
-        Node<K, V> parent = replacement.getParentNode(root);
-        if (parent.left == replacement) {
-            parent.left = null;
+        Node<K, V> tobechangedwith = root.pred_in_order();
+        Node<K, V> nodeparent = tobechangedwith.getParentNode(root);
+        if (nodeparent.left == tobechangedwith) {
+            nodeparent.left = null;
         } else {
-            parent.right = null;
+            nodeparent.right = null;
         }
-        replacement.left = root.left;
-        replacement.right = root.right;
-        root = replacement;
+        tobechangedwith.left = root.left;
+        tobechangedwith.right = root.right;
+        root = tobechangedwith;
     }
 
     @Override
