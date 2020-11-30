@@ -322,7 +322,7 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
         }
 
         Stack<Node> stack = new Stack<>();
-        Node<K,V> current = node;
+        Node<K, V> current = node;
 
         stack.push(node);
 
@@ -352,9 +352,9 @@ public class UnbalancedMap<K extends Comparable<K>, V> implements IMap<K, V> {
         }
 
         Stack<Node> stack = new Stack<>();
-        Node<K,V> current = node;
+        Node<K, V> current = node;
 
-        while (current!= null || !stack.empty()) {
+        while (current != null || !stack.empty()) {
             while (current != null) {
                 stack.push(current);
                 current = current.left;
